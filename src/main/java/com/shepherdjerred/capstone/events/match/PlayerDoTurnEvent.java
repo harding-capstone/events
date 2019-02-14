@@ -1,4 +1,4 @@
-package com.shepherdjerred.capstone.events;
+package com.shepherdjerred.capstone.events.match;
 
 import com.shepherdjerred.capstone.logic.turn.Turn;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
-public class MakeTurnEvent {
+public class PlayerDoTurnEvent implements MatchEvent {
 
   private final Turn turn;
 }
