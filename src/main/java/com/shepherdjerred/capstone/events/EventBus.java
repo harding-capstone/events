@@ -31,6 +31,11 @@ public class EventBus<T extends Event> {
   }
 
   @SuppressWarnings("unchecked")
+  public <U extends T> void removeHandler(Class<U> eventClass, EventHandler<U> handler) {
+    handlers.getOrDefault(eventClass, new HashSet<>()).remove(handler);
+  }
+
+  @SuppressWarnings("unchecked")
   public void dispatch(T event) {
     var handlers = getHandlers((Class<T>) event.getClass());
     handlers.forEach(handler -> handler.handle(event));

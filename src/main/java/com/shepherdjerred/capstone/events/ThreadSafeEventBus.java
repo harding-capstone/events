@@ -35,6 +35,11 @@ public class ThreadSafeEventBus<T extends Event> {
   }
 
   @SuppressWarnings("unchecked")
+  public <U extends T> void removeHandler(Class<U> eventClass, EventHandler<U> handler) {
+    handlers.getOrDefault(eventClass, new HashSet<>()).remove(handler);
+  }
+
+  @SuppressWarnings("unchecked")
   public void handleLatestEvent() {
     var event = queue.remove();
     var handlers = getHandlers((Class<T>) event.getClass());
@@ -52,7 +57,7 @@ public class ThreadSafeEventBus<T extends Event> {
 
   public void dispatch(T event) {
     queue.add(event);
-}
+  }
 
   private Set<EventHandler<T>> getHandlers(Class<T> eventClass) {
     return handlers.getOrDefault(eventClass, new HashSet<>());
