@@ -21,27 +21,51 @@ public class EventBus<T extends Event> {
     this.handlers = new HashMap<>();
   }
 
+  public <U extends T> void register(Class<U> eventClass, EventHandler<U> handler) {
+    registerHandler(eventClass, handler);
+  }
+
   public <U extends T> void registerHandler(Class<U> eventClass, EventHandler<U> handler) {
     var existingHandlers = getHandlers((Class<T>) eventClass);
     existingHandlers.add((EventHandler<T>) handler);
     handlers.put((Class<T>) eventClass, existingHandlers);
   }
 
+  public <U extends T> void remove(Class<U> eventClass, EventHandler<U> handler) {
+    removeHandler(eventClass, handler);
+  }
+
   public <U extends T> void removeHandler(Class<U> eventClass, EventHandler<U> handler) {
     handlers.getOrDefault(eventClass, new HashSet<>()).remove(handler);
+  }
+
+  public void register(EventHandler<T> handler) {
+    registerHandler(handler);
   }
 
   public void registerHandler(EventHandler<T> handler) {
     genericHandlers.add(handler);
   }
 
+  public void remove(EventHandler<T> handler) {
+    removeHandler(handler);
+  }
+
   public void removeHandler(EventHandler<T> handler) {
     genericHandlers.remove(handler);
+  }
+
+  public void register(EventHandlerFrame<T> handlerFrame) {
+    registerHandlerFrame(handlerFrame);
   }
 
   public void registerHandlerFrame(EventHandlerFrame<T> handlerFrame) {
     handlerFrame.getHandlers()
         .forEach((type, handlers) -> handlers.forEach(handler -> registerHandler(type, handler)));
+  }
+
+  public void remove(EventHandlerFrame<T> handlerFrame) {
+    removeHandlerFrame(handlerFrame);
   }
 
   public void removeHandlerFrame(EventHandlerFrame<T> handlerFrame) {
@@ -50,9 +74,11 @@ public class EventBus<T extends Event> {
   }
 
   public void dispatch(T event) {
-    var handlers = getHandlers((Class<T>) event.getClass());
+    var handlers = new HashSet<>(getHandlers((Class<T>) event.getClass()));
     handlers.forEach(handler -> handler.handle(event));
-    genericHandlers.forEach(handler -> handler.handle(event));
+
+    var genericHandlersCopy = new HashSet<>(genericHandlers);
+    genericHandlersCopy.forEach(handler -> handler.handle(event));
   }
 
   private Set<EventHandler<T>> getHandlers(Class<T> eventClass) {
